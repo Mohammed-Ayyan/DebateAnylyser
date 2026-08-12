@@ -1,0 +1,31 @@
+MODERATOR: Tonight's topic is the regulation of artificial intelligence. Our debaters have sharply opposing views on whether governments should impose strict controls on AI development. Let's hear from each.
+
+DEBATER 1: Artificial intelligence poses an existential risk that demands immediate regulatory intervention. A 2024 survey of AI researchers by AI Impacts found that 36% of respondents believe there is a 10% or greater chance that advanced AI leads to human extinction. The technology is advancing faster than any governance framework can track. OpenAI went from GPT-3 to GPT-4 in just 18 months, a capability jump that surprised even their own safety team. We need a mandatory licensing regime for frontier AI models before the next capability threshold is crossed.
+
+DEBATER 2: Those survey numbers are misleading. The AI Impacts survey had a 17% response rate, meaning the 36% figure represents roughly 6% of the researchers contacted. Selection bias toward concerned respondents is well-documented in risk perception surveys. The broader machine learning community, including Yann LeCun, Andrew Ng, and the majority of NeurIPS attendees, views current AI as sophisticated pattern matching, not a precursor to superintelligence. Regulation based on science fiction scenarios will cripple innovation.
+
+MODERATOR: Debater 1, is the existential framing necessary for your regulatory argument?
+
+DEBATER 1: Even setting aside existential risk, the concrete harms are already here. The Federal Trade Commission received over 10,000 complaints about AI-generated fraud in the first half of 2024. Deepfakes influenced elections in Slovakia, Bangladesh, and Argentina. An AI hiring system at a major tech company was found to systematically reject candidates over 45 years old. Anyone who opposes regulation at this point is either profiting from the status quo or willfully ignoring documented harm.
+
+DEBATER 2: That is a classic false dichotomy. I can oppose premature regulation while acknowledging specific harms. Every technology causes harm at scale. The internet enabled fraud, misinformation, and privacy violations, yet heavy-handed regulation in the 1990s would have prevented the greatest productivity revolution in human history. If we had regulated the internet like you propose regulating AI, we would have no e-commerce, no telemedicine, no remote work. The potential benefits are incalculable.
+
+MODERATOR: What about the EU AI Act as a model? It passed with broad support.
+
+DEBATER 2: The EU AI Act is already driving investment away from Europe. According to Stanford's AI Index, European AI startup funding fell 30% relative to the United States in 2023. Professor Stuart Russell at Berkeley, the world's leading AI textbook author, has called the EU approach disproportionate to current capabilities. When the foremost authority on AI says regulation has gone too far, we should listen.
+
+DEBATER 1: Stuart Russell actually supports AI regulation and co-authored an open letter calling for a pause on giant AI experiments. You are selectively quoting him to support your position, which is intellectually dishonest. The funding statistic also conflates correlation with causation. European investment declined due to multiple factors including interest rate policy, not solely because of the AI Act. The real question is whether we wait for catastrophe or act preventatively.
+
+DEBATER 2: If you want to play the causation card, then your FTC complaint numbers prove nothing about AI specifically. Those 10,000 complaints include every case where AI was tangentially mentioned, not proven instances of AI-caused harm. Meanwhile, AI is already saving lives. Google's AI detected 27% more breast cancers than human radiologists in clinical trials. Slowing AI development has a body count too.
+
+DEBATER 1: Nobody is proposing to ban medical AI. That is a straw man argument. I am calling for mandatory safety testing, transparency requirements, and liability frameworks specifically for high-risk applications. A licensing regime for frontier models does not prevent diagnostic AI any more than FDA approval prevents pharmaceutical innovation. It channels development toward safety.
+
+MODERATOR: Can we find common ground? What about targeted, risk-proportional regulation?
+
+DEBATER 2: I will accept narrow, sector-specific rules. Medical AI should follow FDA processes. Financial AI should follow existing banking regulations. What I reject is a horizontal AI-specific agency with broad powers to define what counts as dangerous. History shows that regulatory agencies get captured by incumbents. A federal AI agency becomes a tool for large companies to raise barriers against smaller competitors.
+
+DEBATER 1: Sector-specific rules leave massive gaps. Who regulates general-purpose AI models that get deployed across every sector? Who ensures a model trained for one purpose is not repurposed for another? Without comprehensive oversight, we get regulatory arbitrage. Companies will route high-risk applications through the least regulated pathway. The financial crisis showed exactly what happens when regulation has gaps that sophisticated actors can exploit.
+
+DEBATER 2: Comparing AI to the 2008 financial crisis is fearmongering. Subprime mortgages nearly destroyed the global economy because of trillions in interconnected liabilities. An AI chatbot generating incorrect text is not a systemic risk of the same magnitude. Proportionality matters, and conflating these situations erodes public trust in legitimate safety concerns.
+
+MODERATOR: We will need to leave it there. Thank you both for an illuminating and spirited exchange.

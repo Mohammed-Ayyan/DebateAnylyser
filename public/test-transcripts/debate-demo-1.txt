@@ -1,0 +1,23 @@
+MODERATOR: Welcome to tonight's policy forum on renewable energy transition. We have two panelists joining us to discuss whether the federal government should mandate 80% renewable energy by 2035. Let's begin with opening statements.
+
+SPEAKER A: Thank you. The climate crisis demands urgent action, and the economics now favor renewables. The International Energy Agency reported that solar power became the cheapest source of electricity in history in 2023, with costs declining 89% since 2010. We should mandate that 80% of electricity generation come from renewable sources by 2035, because every year of delay adds an estimated $500 billion in future adaptation costs according to the Stern Review methodology.
+
+SPEAKER B: I appreciate the environmental concern, but mandating an 80% target by 2035 ignores grid engineering reality. The National Renewable Energy Laboratory's 2024 integration study found that above 60% variable renewable penetration, curtailment rates increase exponentially, wasting 15 to 20% of generated power. We need a technology-neutral approach that includes nuclear, carbon capture, and next-generation storage rather than picking winners.
+
+MODERATOR: Speaker A, how do you respond to the grid reliability concern?
+
+SPEAKER A: Grid reliability is a solvable engineering problem, not a fundamental barrier. Denmark already operates at 80% wind and solar on an annual basis, and their grid reliability index actually improved by 12% over the last decade. The National Grid ESO in Britain demonstrated that battery storage paired with demand response can handle 95% of intermittency events. The real question is whether we have the political will to invest in transmission infrastructure.
+
+SPEAKER B: Denmark is a small country that imports power from Norwegian hydroelectric dams whenever wind drops. That is not a scalable model for a continent-sized economy. The U.S. Department of Energy estimates that reaching 80% renewables would require $2.5 trillion in new transmission lines alone, on top of generation costs. Either we bankrupt the economy chasing arbitrary timelines, or we pursue a realistic transition that maintains energy security. There is no middle path on grid physics.
+
+MODERATOR: Let's talk about the economic impact. Speaker B, what would your ideal policy framework look like?
+
+SPEAKER B: First, we establish a carbon price of $50 per ton, rising 5% annually, letting the market discover the cheapest decarbonization path. Second, we fund research into fusion, advanced geothermal, and long-duration storage through ARPA-E at triple the current budget. Third, we streamline permitting for all low-carbon sources equally. Countries like France generate 70% of electricity from nuclear with among the lowest carbon intensities in Europe, proving that mandating only renewables is unnecessarily narrow.
+
+SPEAKER A: I agree on carbon pricing and research funding, but a carbon price alone moves too slowly. The Intergovernmental Panel on Climate Change states that global emissions must fall 43% by 2030 to limit warming to 1.5 degrees. A carbon price starting at $50 does not achieve that velocity. Moreover, nuclear plants take 15 to 20 years to build, making them irrelevant to a 2035 timeline. If we invest in nuclear today, it arrives after the window for preventing catastrophic tipping points has closed.
+
+SPEAKER A: The economic case is equally compelling. The Bureau of Labor Statistics reports that solar installer and wind technician are the two fastest-growing occupations in America, with 60% and 45% projected growth respectively through 2032. A renewable mandate creates 3.2 million net new jobs according to the Political Economy Research Institute, while fossil fuel employment represents less than 1.7% of the total workforce. The just transition is economically rational, not merely ideological.
+
+SPEAKER B: Job projections are speculative modeling, not established fact. The same institute predicted 2.5 million green jobs from the 2009 stimulus, and actual delivery was a fraction of that. I support renewable growth where it is cost-effective, but mandates distort markets, create subsidy dependency, and risk stranded assets when better technologies emerge. We should set outcome targets for emissions reduction, not technology mandates for generation sources. That is responsible energy governance.
+
+MODERATOR: Thank you both for a substantive exchange on this critical policy question.

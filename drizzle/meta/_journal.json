@@ -1,0 +1,69 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1785172085500,
+      "tag": "0000_smiling_nick_fury",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1785174644323,
+      "tag": "0001_shiny_thaddeus_ross",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785177339053,
+      "tag": "0002_stiff_franklin_richards",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785179933857,
+      "tag": "0003_fixed_wolverine",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785181858093,
+      "tag": "0004_pink_bloodstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786296229442,
+      "tag": "0005_broken_captain_cross",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1786299344218,
+      "tag": "0006_cultured_iron_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1786302496770,
+      "tag": "0007_lovely_wolverine",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1786304258298,
+      "tag": "0008_dapper_puck",
+      "breakpoints": true
+    }
+  ]
+}
