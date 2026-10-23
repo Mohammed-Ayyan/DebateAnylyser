@@ -79,7 +79,10 @@ export class OpenAIStructureMappingProvider implements StructureMappingProvider 
     }, this.options.timeoutMs)
     try {
       const _reqStart = pipelineNow()
-      pipelineLog("S4", "PROVIDER", "Sending request", { model: this.options.model, host: new URL(this.options.apiUrl).hostname })
+      pipelineLog("S4", "PROVIDER", "Sending request", {
+        model: this.options.model,
+        host: new URL(this.options.apiUrl).hostname,
+      })
       const response = await (this.options.fetchImpl ?? fetch)(this.options.apiUrl, {
         method: "POST",
         headers: {
@@ -116,7 +119,10 @@ export class OpenAIStructureMappingProvider implements StructureMappingProvider 
         }),
         signal: controller.signal,
       })
-      pipelineLog("S4", "PROVIDER", "Response received", { status: response.status, elapsed: pipelineElapsed(_reqStart) })
+      pipelineLog("S4", "PROVIDER", "Response received", {
+        status: response.status,
+        elapsed: pipelineElapsed(_reqStart),
+      })
       if (!response.ok) throw providerError(response.status)
       const parsed = responseSchema.safeParse(await response.json())
       if (!parsed.success) {

@@ -31,6 +31,7 @@ import {
   type FallacyTranscriptSegment,
   type ValidatedFallacyFinding,
 } from "./contracts"
+import { OllamaFallacyDetectionProvider } from "./ollama-provider"
 import { OpenAIFallacyDetectionProvider } from "./openai-provider"
 import {
   getFallacyStageSnapshot,
@@ -74,6 +75,15 @@ function createDefaultProvider(): FallacyDetectionProvider {
       "Fallacy detection is disabled.",
       false,
     )
+  }
+  if (serverEnv.FALLACY_PROVIDER === "ollama") {
+    return new OllamaFallacyDetectionProvider({
+      baseUrl: serverEnv.OLLAMA_BASE_URL,
+      model: serverEnv.OLLAMA_MODEL,
+      numCtx: serverEnv.OLLAMA_NUM_CTX,
+      numGpu: serverEnv.OLLAMA_NUM_GPU,
+      timeoutMs: serverEnv.OLLAMA_REQUEST_TIMEOUT_MS,
+    })
   }
   const { GROQ_API_KEY } = requireServerEnv("GROQ_API_KEY")
   return new OpenAIFallacyDetectionProvider({
@@ -310,7 +320,10 @@ async function detectFallacies(
       seen.add(key)
       accepted.push({ ...finding, sourceClaimId: call.sourceClaimId })
     }
-    pipelineLog("S5", "PROVIDER", "Response received", { elapsed: pipelineElapsed(_callStart), accepted: accepted.length })
+    pipelineLog("S5", "PROVIDER", "Response received", {
+      elapsed: pipelineElapsed(_callStart),
+      accepted: accepted.length,
+    })
     if (leaseWasLost()) {
       throw new FallacyDetectionError("WORKER_LEASE_LOST", "The worker lease was lost.", true)
     }
@@ -344,7 +357,11 @@ export async function processClaimedFallacyJob(
   let inputStatus: "analyzing" | "partial" | undefined
   try {
     const input = await dependencies.loadInput(job.analysisId)
-    pipelineLog("S5", "INPUT", "", { segments: input.segments.length, claims: input.claims.length, structures: input.structures.length })
+    pipelineLog("S5", "INPUT", "", {
+      segments: input.segments.length,
+      claims: input.claims.length,
+      structures: input.structures.length,
+    })
     inputStatus = input.status
     const validSegmentIds = new Set(input.segments.map((segment) => segment.id))
     const snapshot = await dependencies.getSnapshot(job.analysisId, true)

@@ -159,7 +159,10 @@ export class DeepgramTranscriptionProvider implements TranscriptionProvider {
     )
     try {
       const _reqStart = pipelineNow()
-      pipelineLog("S1", "PROVIDER", "Sending request", { model: this.options.model, host: new URL(this.options.apiUrl).hostname })
+      pipelineLog("S1", "PROVIDER", "Sending request", {
+        model: this.options.model,
+        host: new URL(this.options.apiUrl).hostname,
+      })
       const response = await (this.options.fetchImpl ?? fetch)(endpoint, {
         method: "POST",
         headers: {
@@ -169,7 +172,10 @@ export class DeepgramTranscriptionProvider implements TranscriptionProvider {
         body: JSON.stringify({ url: request.mediaUrl }),
         signal: controller.signal,
       })
-      pipelineLog("S1", "PROVIDER", "Response received", { status: response.status, elapsed: pipelineElapsed(_reqStart) })
+      pipelineLog("S1", "PROVIDER", "Response received", {
+        status: response.status,
+        elapsed: pipelineElapsed(_reqStart),
+      })
       if (!response.ok) throw providerError(response.status)
       const parsed = responseSchema.safeParse(await response.json())
       if (!parsed.success) {

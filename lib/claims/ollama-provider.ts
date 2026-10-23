@@ -1,6 +1,7 @@
 import "server-only"
 
 import { escapeSourceDelimiters, SOURCE_CLOSE, SOURCE_OPEN } from "@/lib/ai/content-boundary"
+import { extractJsonFromModelOutput } from "@/lib/ai/json-extractor"
 import { pipelineElapsed, pipelineLog, pipelineNow } from "@/lib/observability/pipeline-logger"
 import {
   ClaimExtractionError,
@@ -44,7 +45,7 @@ function buildSystemPrompt(maxClaims: number): string {
     "",
     "For each claim, return:",
     "- segment_index: the number in brackets [N] where the claim appears",
-    '- claim_text: the EXACT substring from that segment containing the claim (copy it precisely, character for character)',
+    "- claim_text: the EXACT substring from that segment containing the claim (copy it precisely, character for character)",
     '- claim_type: one of "factual", "value", "policy", "causal"',
     "- check_worthy: true only if the claim is an externally verifiable factual or causal assertion",
     "- extraction_confidence: a number between 0 and 1",
@@ -83,9 +84,7 @@ function parseSourceBlock(sourceBlock: string): ParsedSegment[] {
 }
 
 function buildUserContent(segments: ParsedSegment[]): string {
-  const segmentList = segments
-    .map((s) => `[${s.segment_index}] "${s.text}"`)
-    .join("\n")
+  const segmentList = segments.map((s) => `[${s.segment_index}] "${s.text}"`).join("\n")
   return `Extract claims from these transcript segments:\n\n${segmentList}`
 }
 
@@ -139,6 +138,9 @@ export class OllamaClaimExtractionProvider implements ClaimExtractionProvider {
           options: {
             num_ctx: this.options.numCtx,
             num_gpu: this.options.numGpu,
+            num_predict: 2048,
+            temperature: 0.1,
+            repeat_penalty: 1.15,
           },
         }),
         signal: controller.signal,
@@ -150,6 +152,7 @@ export class OllamaClaimExtractionProvider implements ClaimExtractionProvider {
       })
 
       if (!response.ok) {
+        const errorText = await response.text().catch(() => "")
         if (response.status === 404) {
           throw new ClaimExtractionError(
             "CLAIM_PROVIDER_REQUEST_REJECTED",
@@ -159,7 +162,7 @@ export class OllamaClaimExtractionProvider implements ClaimExtractionProvider {
         }
         throw new ClaimExtractionError(
           "CLAIM_PROVIDER_UNAVAILABLE",
-          `Ollama returned HTTP ${response.status}.`,
+          `Ollama returned HTTP ${response.status}: ${errorText}`,
           response.status >= 500,
         )
       }
@@ -184,7 +187,8 @@ export class OllamaClaimExtractionProvider implements ClaimExtractionProvider {
       // Parse model JSON output
       let modelOutput: { claims?: ModelClaim[] }
       try {
-        modelOutput = JSON.parse(outputText) as { claims?: ModelClaim[] }
+        const jsonStr = extractJsonFromModelOutput(outputText)
+        modelOutput = JSON.parse(jsonStr) as { claims?: ModelClaim[] }
       } catch {
         throw new ClaimExtractionError(
           "CLAIM_PROVIDER_INVALID_JSON",
@@ -256,10 +260,9 @@ export class OllamaClaimExtractionProvider implements ClaimExtractionProvider {
         }
 
         const matchText = raw.claim_text.trim()
-        const matchLen = escapedText.indexOf(matchText) >= 0 ? matchText.length : raw.claim_text.length
-        const startChar = escapedText.indexOf(matchText) >= 0
-          ? escapedText.indexOf(matchText)
-          : idx
+        const matchLen =
+          escapedText.indexOf(matchText) >= 0 ? matchText.length : raw.claim_text.length
+        const startChar = escapedText.indexOf(matchText) >= 0 ? escapedText.indexOf(matchText) : idx
         const endChar = startChar + matchLen
 
         // Verify the resolved span is non-empty and within bounds
@@ -305,7 +308,9 @@ export class OllamaClaimExtractionProvider implements ClaimExtractionProvider {
       if (controller.signal.aborted) {
         throw new ClaimExtractionError(
           timedOut ? "CLAIM_PROVIDER_TIMEOUT" : "CLAIM_PROVIDER_ABORTED",
-          timedOut ? "Ollama claim extraction timed out." : "Ollama claim extraction was interrupted.",
+          timedOut
+            ? "Ollama claim extraction timed out."
+            : "Ollama claim extraction was interrupted.",
           true,
           error,
         )

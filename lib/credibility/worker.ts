@@ -22,6 +22,7 @@ import {
   type ClaimedAnalysisJob,
 } from "@/lib/queue/analysis-jobs"
 import type { CredibilityProvider } from "./contracts"
+import { DatasetCredibilityProvider } from "./dataset-provider"
 import { CredibilityProviderError, HttpCredibilityProvider } from "./http-provider"
 import {
   CredibilityStageError,
@@ -57,6 +58,9 @@ function createDefaultProvider(): CredibilityProvider {
       "Source credibility assessment is disabled.",
       false,
     )
+  }
+  if (serverEnv.SOURCE_CREDIBILITY_PROVIDER === "dataset") {
+    return new DatasetCredibilityProvider()
   }
   const { CREDIBILITY_PROVIDER_URL, CREDIBILITY_PROVIDER_API_KEY } = requireServerEnv(
     "CREDIBILITY_PROVIDER_URL",

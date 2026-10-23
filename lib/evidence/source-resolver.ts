@@ -151,8 +151,16 @@ async function fetchText(
           "accept-encoding": "identity",
           "user-agent": "DebateAnalyser-EvidenceVerifier/1.0",
         },
-        lookup: (_hostname, _lookupOptions, callback) =>
-          callback(null, resolved.address, resolved.family),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        lookup: (_hostname: string, lookupOptions: any, callback: any) => {
+          if (typeof lookupOptions === "function") {
+            lookupOptions(null, resolved.address, resolved.family)
+          } else if (lookupOptions && lookupOptions.all) {
+            callback(null, [{ address: resolved.address, family: resolved.family }])
+          } else {
+            callback(null, resolved.address, resolved.family)
+          }
+        },
       },
       (response) => {
         const status = response.statusCode ?? 0

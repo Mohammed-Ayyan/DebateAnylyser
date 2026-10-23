@@ -26,6 +26,7 @@ import {
   type ValidatedStructureGraph,
 } from "./contracts"
 import { prepareStructureCalls, validateStructureMappings } from "./mapping"
+import { OllamaStructureMappingProvider } from "./ollama-provider"
 import { OpenAIStructureMappingProvider } from "./openai-provider"
 import { toTraceablePublicStructure, type PublicStructureGraph } from "./public-structure"
 import { getStructureStageSnapshot, loadStructureInput, persistStructureGraphs } from "./repository"
@@ -58,6 +59,15 @@ function createDefaultProvider(): StructureMappingProvider {
       "Argument structure mapping is disabled.",
       false,
     )
+  }
+  if (serverEnv.STRUCTURE_PROVIDER === "ollama") {
+    return new OllamaStructureMappingProvider({
+      baseUrl: serverEnv.OLLAMA_BASE_URL,
+      model: serverEnv.OLLAMA_MODEL,
+      numCtx: serverEnv.OLLAMA_NUM_CTX,
+      numGpu: serverEnv.OLLAMA_NUM_GPU,
+      timeoutMs: serverEnv.OLLAMA_REQUEST_TIMEOUT_MS,
+    })
   }
   const { GROQ_API_KEY } = requireServerEnv("GROQ_API_KEY")
   return new OpenAIStructureMappingProvider({
@@ -272,7 +282,9 @@ export async function processClaimedStructureJob(
               }),
           })
           graphs.push(...result.output)
-          pipelineLog("S4", "PROVIDER", "Response received", { elapsed: pipelineElapsed(_callStart) })
+          pipelineLog("S4", "PROVIDER", "Response received", {
+            elapsed: pipelineElapsed(_callStart),
+          })
           if (leaseLost) {
             throw new StructureMappingError("WORKER_LEASE_LOST", "The worker lease was lost.", true)
           }
@@ -296,8 +308,13 @@ export async function processClaimedStructureJob(
         false,
       )
     }
-    pipelineLog("S4", "VALIDATION", "Schema validation passed", { findings: publicGraph.findings.length })
-    pipelineLog("S4", "DB", "Persisting", { findings: publicGraph.findings.length, edges: publicGraph.edges.length })
+    pipelineLog("S4", "VALIDATION", "Schema validation passed", {
+      findings: publicGraph.findings.length,
+    })
+    pipelineLog("S4", "DB", "Persisting", {
+      findings: publicGraph.findings.length,
+      edges: publicGraph.edges.length,
+    })
     await requireLease(dependencies.renewJob(job.id, job.lockToken))
     await dependencies.transitionStage(stageRun.id, "running", "complete")
     await publishStage(dependencies, job.analysisId, "complete", stageRun.attempt)

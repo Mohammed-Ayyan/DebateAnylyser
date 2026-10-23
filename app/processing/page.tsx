@@ -101,6 +101,14 @@ export default function ProcessingPage() {
   const [connection, setConnection] = useState<
     "connecting" | "connected" | "reconnecting" | "offline"
   >("connecting")
+  const [runningSeconds, setRunningSeconds] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRunningSeconds((s) => s + 1)
+    }, 1_000)
+    return () => clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     const id = new URL(window.location.href).searchParams.get("analysis")
@@ -209,6 +217,17 @@ export default function ProcessingPage() {
         }
       })
     }
+    const pollAuthoritativeState = async () => {
+      if (terminalReached) return
+      await reconcileAssembly()
+      await reconcileTranscript()
+      await reconcileClaims()
+      await reconcileSupport()
+      await reconcileStructure()
+      await reconcileFallacies()
+      await reconcileEvidence()
+      await reconcileCredibility()
+    }
     reconcile(
       reconcileTranscript,
       reconcileClaims,
@@ -219,15 +238,32 @@ export default function ProcessingPage() {
       reconcileCredibility,
       reconcileAssembly,
     )
+    const pollInterval = setInterval(() => {
+      if (terminalReached) {
+        clearInterval(pollInterval)
+        return
+      }
+      void pollAuthoritativeState()
+    }, 3_000)
+
     const stream = new EventSource(`/api/v1/analyses/${encodeURIComponent(id)}/stream`)
-    const handleOnline = () => setConnection("reconnecting")
+    const handleOnline = () => {
+      setConnection("reconnecting")
+      void pollAuthoritativeState()
+    }
     const handleOffline = () => setConnection("offline")
     setConnection(navigator.onLine ? "connecting" : "offline")
     window.addEventListener("online", handleOnline)
     window.addEventListener("offline", handleOffline)
-    stream.onopen = () => setConnection("connected")
+    stream.onopen = () => {
+      setConnection("connected")
+      void pollAuthoritativeState()
+    }
     stream.onerror = () => {
-      if (!terminalReached) setConnection(navigator.onLine ? "reconnecting" : "offline")
+      if (!terminalReached) {
+        setConnection(navigator.onLine ? "reconnecting" : "offline")
+        void pollAuthoritativeState()
+      }
     }
 
     const onStage = (event: Event) => {
@@ -328,6 +364,7 @@ export default function ProcessingPage() {
       )
       if (!data || data.type !== "analysis.done") return
       terminalReached = true
+      clearInterval(pollInterval)
       stream.close()
       setConnection("connected")
       setLogs((current) => [
@@ -348,9 +385,13 @@ export default function ProcessingPage() {
       )
     }
     const onError = (event: Event) => {
-      const data = parseEvent<ErrorEventData>(event)
+      const data = parseEvent<ErrorEventData & { reconcile_required?: boolean }>(event)
       if (!data || data.type !== "error") return
-      setErrorMessage(data.message)
+      if (data.reconcile_required) {
+        void pollAuthoritativeState()
+      } else {
+        setErrorMessage(data.message)
+      }
       setLogs((current) => [...current.slice(-49), `[NOTICE] ${data.message}`])
     }
     stream.addEventListener("stage.status", onStage)
@@ -361,6 +402,7 @@ export default function ProcessingPage() {
     return () => {
       window.removeEventListener("online", handleOnline)
       window.removeEventListener("offline", handleOffline)
+      clearInterval(pollInterval)
       stream.close()
     }
   }, [])
@@ -479,6 +521,40 @@ export default function ProcessingPage() {
           </div>
           <AsciiProgress value={progressPercent} length={36} showPercentage={false} />
         </div>
+
+        {analysisStatus === "queued" && statuses.S1 === "pending" && !errorMessage && (
+          <div className="border border-zinc-800 bg-[#0c0c0c] p-3 text-xs text-zinc-400">
+            <span className="font-bold text-zinc-200">[STATUS: QUEUED]</span> Waiting in durable
+            queue for background analysis worker. If self-hosting, ensure the background worker
+            process (<code className="text-zinc-200">npm run worker:analysis</code>) is running.
+          </div>
+        )}
+
+        {statuses.S2 === "running" && (
+          <div className="border border-sky-800/60 bg-sky-950/20 p-3 text-xs text-sky-200">
+            <span className="font-bold text-sky-400">[STAGE S2 INFERENCE ACTIVE: ~{runningSeconds}s]</span> Local AI model (phi3:mini) is actively analyzing transcript segments for explicit claims. Processing full transcript segments typically takes 30–90 seconds.
+          </div>
+        )}
+        {statuses.S3 === "running" && (
+          <div className="border border-sky-800/60 bg-sky-950/20 p-3 text-xs text-sky-200">
+            <span className="font-bold text-sky-400">[STAGE S3 INFERENCE ACTIVE: ~{runningSeconds}s]</span> Local AI model is assessing speaker-provided support for extracted claims.
+          </div>
+        )}
+        {statuses.S4 === "running" && (
+          <div className="border border-sky-800/60 bg-sky-950/20 p-3 text-xs text-sky-200">
+            <span className="font-bold text-sky-400">[STAGE S4 INFERENCE ACTIVE: ~{runningSeconds}s]</span> Local AI model is mapping traceable Toulmin argument structures.
+          </div>
+        )}
+        {statuses.S5 === "running" && (
+          <div className="border border-sky-800/60 bg-sky-950/20 p-3 text-xs text-sky-200">
+            <span className="font-bold text-sky-400">[STAGE S5 INFERENCE ACTIVE: ~{runningSeconds}s]</span> Local AI model is checking for precision-gated rhetorical patterns.
+          </div>
+        )}
+        {assemblyReady && (
+          <div className="border border-emerald-800/60 bg-emerald-950/30 p-3 text-xs text-emerald-200">
+            <span className="font-bold uppercase tracking-wider text-emerald-400">[ANALYSIS COMPLETE]</span> All stages finished successfully and the traceable workspace is ready. Click below to open.
+          </div>
+        )}
 
         {connection !== "connected" && analysisId && !analysisTerminal && (
           <AnalysisState

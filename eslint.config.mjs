@@ -48,6 +48,7 @@ export default [
       "components/**/*.{ts,tsx}",
       "hooks/**/*.{ts,tsx}",
       "lib/mock-data.ts",
+      "scripts/**/*.{ts,js}",
     ],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",

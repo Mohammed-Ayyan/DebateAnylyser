@@ -37,16 +37,20 @@ function splitText(value: string): string[] {
 }
 
 export function userSuppliedTranscript(text: string): TranscriptionOutput {
-  const segments = splitText(text).map((segment, index) => ({
-    index,
-    startMs: 0,
-    endMs: 0,
-    text: segment,
-    speakerLabel: null,
-    asrConfidence: null,
-    diarizationConfidence: null,
-    lowConfidence: false,
-  }))
+  const segments = splitText(text).map((segment, index) => {
+    const speakerMatch = segment.match(/^([A-Za-z0-9 _-]{1,64}):\s+/i)
+    const speakerLabel = speakerMatch ? speakerMatch[1].trim() : null
+    return {
+      index,
+      startMs: 0,
+      endMs: 0,
+      text: segment,
+      speakerLabel,
+      asrConfidence: null,
+      diarizationConfidence: null,
+      lowConfidence: false,
+    }
+  })
   const parsed = transcriptionOutputSchema.safeParse({
     source: "user_supplied",
     language: null,

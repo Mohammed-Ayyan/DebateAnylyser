@@ -26,6 +26,7 @@ import {
   type SupportAssessmentProvider,
   type ValidatedSupport,
 } from "./contracts"
+import { OllamaSupportAssessmentProvider } from "./ollama-provider"
 import { OpenAISupportAssessmentProvider } from "./openai-provider"
 import { toTraceablePublicSupport } from "./public-support"
 import { getSupportStageSnapshot, loadSupportInput, persistSupportAssessments } from "./repository"
@@ -58,6 +59,15 @@ function createDefaultProvider(): SupportAssessmentProvider {
       "Speaker support assessment is disabled.",
       false,
     )
+  }
+  if (serverEnv.SUPPORT_PROVIDER === "ollama") {
+    return new OllamaSupportAssessmentProvider({
+      baseUrl: serverEnv.OLLAMA_BASE_URL,
+      model: serverEnv.OLLAMA_MODEL,
+      numCtx: serverEnv.OLLAMA_NUM_CTX,
+      numGpu: serverEnv.OLLAMA_NUM_GPU,
+      timeoutMs: serverEnv.OLLAMA_REQUEST_TIMEOUT_MS,
+    })
   }
   const { GROQ_API_KEY } = requireServerEnv("GROQ_API_KEY")
   return new OpenAISupportAssessmentProvider({
@@ -200,7 +210,10 @@ export async function processClaimedSupportJob(
   let inputStatus: "analyzing" | "partial" | undefined
   try {
     const input = await dependencies.loadInput(job.analysisId)
-    pipelineLog("S3", "INPUT", "", { segments: input.segments.length, claims: input.claims?.length ?? 0 })
+    pipelineLog("S3", "INPUT", "", {
+      segments: input.segments.length,
+      claims: input.claims?.length ?? 0,
+    })
     inputStatus = input.status
     const validSegmentIds = new Set(input.segments.map((segment) => segment.id))
     const snapshot = await dependencies.getSnapshot(job.analysisId, true)
@@ -258,7 +271,9 @@ export async function processClaimedSupportJob(
             transformValidated: (candidate) => validateSupportAssessments(candidate, call),
           })
           assessed.push(...result.output)
-          pipelineLog("S3", "PROVIDER", "Response received", { elapsed: pipelineElapsed(_callStart) })
+          pipelineLog("S3", "PROVIDER", "Response received", {
+            elapsed: pipelineElapsed(_callStart),
+          })
           if (leaseLost) {
             throw new SupportAssessmentError(
               "WORKER_LEASE_LOST",

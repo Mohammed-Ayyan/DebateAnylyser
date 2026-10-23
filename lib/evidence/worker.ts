@@ -28,6 +28,7 @@ import {
   type EvidenceVerifier,
   type VerifiedEvidence,
 } from "./contracts"
+import { OllamaEvidenceVerifier } from "./ollama-verifier"
 import { OpenAIEvidenceVerifier } from "./openai-verifier"
 import { toTraceablePublicEvidenceClaims } from "./public-evidence"
 import {
@@ -38,6 +39,7 @@ import {
 } from "./repository"
 import { HttpEvidenceRetriever } from "./retriever"
 import { HttpsEvidenceSourceResolver } from "./source-resolver"
+import { WikipediaEvidenceRetriever } from "./wikipedia-retriever"
 import {
   deduplicateVerifiedEvidence,
   eligibleEvidenceClaims,
@@ -81,6 +83,13 @@ function assertEnabled(): void {
 
 function createDefaultRetriever(): EvidenceRetriever {
   assertEnabled()
+  if (serverEnv.EVIDENCE_RETRIEVER_PROVIDER === "wikipedia") {
+    return new WikipediaEvidenceRetriever({
+      apiUrl: serverEnv.WIKIPEDIA_API_URL,
+      userAgent: serverEnv.WIKIPEDIA_USER_AGENT,
+      timeoutMs: serverEnv.EVIDENCE_RETRIEVER_TIMEOUT_MS,
+    })
+  }
   const { EVIDENCE_RETRIEVER_URL, EVIDENCE_RETRIEVER_API_KEY } = requireServerEnv(
     "EVIDENCE_RETRIEVER_URL",
     "EVIDENCE_RETRIEVER_API_KEY",
@@ -94,6 +103,15 @@ function createDefaultRetriever(): EvidenceRetriever {
 
 function createDefaultVerifier(): EvidenceVerifier {
   assertEnabled()
+  if (serverEnv.EVIDENCE_VERIFIER_PROVIDER === "ollama") {
+    return new OllamaEvidenceVerifier({
+      baseUrl: serverEnv.OLLAMA_BASE_URL,
+      model: serverEnv.OLLAMA_MODEL,
+      numCtx: serverEnv.OLLAMA_NUM_CTX,
+      timeoutMs: serverEnv.EVIDENCE_VERIFIER_TIMEOUT_MS,
+      maxOutputTokens: serverEnv.EVIDENCE_MAX_OUTPUT_TOKENS,
+    })
+  }
   const { OPENAI_API_KEY } = requireServerEnv("OPENAI_API_KEY")
   return new OpenAIEvidenceVerifier({
     apiKey: OPENAI_API_KEY,

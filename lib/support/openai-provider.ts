@@ -79,7 +79,10 @@ export class OpenAISupportAssessmentProvider implements SupportAssessmentProvide
     }, this.options.timeoutMs)
     try {
       const _reqStart = pipelineNow()
-      pipelineLog("S3", "PROVIDER", "Sending request", { model: this.options.model, host: new URL(this.options.apiUrl).hostname })
+      pipelineLog("S3", "PROVIDER", "Sending request", {
+        model: this.options.model,
+        host: new URL(this.options.apiUrl).hostname,
+      })
       const response = await (this.options.fetchImpl ?? fetch)(this.options.apiUrl, {
         method: "POST",
         headers: {
@@ -114,7 +117,10 @@ export class OpenAISupportAssessmentProvider implements SupportAssessmentProvide
         }),
         signal: controller.signal,
       })
-      pipelineLog("S3", "PROVIDER", "Response received", { status: response.status, elapsed: pipelineElapsed(_reqStart) })
+      pipelineLog("S3", "PROVIDER", "Response received", {
+        status: response.status,
+        elapsed: pipelineElapsed(_reqStart),
+      })
       if (!response.ok) throw providerError(response.status)
       const parsed = responseSchema.safeParse(await response.json())
       if (!parsed.success) {

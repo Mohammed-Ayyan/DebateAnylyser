@@ -1,4 +1,13 @@
+import { loadEnvFile } from "node:process"
 import { defineConfig } from "drizzle-kit"
+
+for (const path of [".env.local", ".env"]) {
+  try {
+    loadEnvFile(path)
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error
+  }
+}
 
 const databaseUrl = process.env.DATABASE_URL
 

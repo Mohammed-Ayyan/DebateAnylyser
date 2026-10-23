@@ -104,11 +104,29 @@ const providerSpecs: ProviderSpec[] = [
   },
 ]
 
+function getProviderRequirements(provider: ProviderSpec, env: RuntimeEnvironment): string[] {
+  if (provider.provider === "evidence_retrieval") {
+    if (
+      env.EVIDENCE_RETRIEVER_PROVIDER === "wikipedia" &&
+      env.EVIDENCE_VERIFIER_PROVIDER === "ollama"
+    ) {
+      return []
+    }
+  }
+  if (provider.provider === "source_credibility") {
+    if (env.SOURCE_CREDIBILITY_PROVIDER === "dataset") {
+      return []
+    }
+  }
+  return provider.requirements
+}
+
 export function describeFeatureProviders(env: RuntimeEnvironment): ProviderStatus[] {
   return providerSpecs.map((provider) => {
     const enabled = provider.flag ? isEnabled(env, provider.flag) : true
     if (!enabled) return { provider: provider.provider, status: "disabled" }
-    const configured = provider.requirements.every((key) => hasValue(env, key))
+    const requirements = getProviderRequirements(provider, env)
+    const configured = requirements.every((key) => hasValue(env, key))
     return { provider: provider.provider, status: configured ? "configured" : "not_configured" }
   })
 }
@@ -119,7 +137,7 @@ function addFeatureRequirements(issues: RuntimeValidationIssue[], env: RuntimeEn
   for (const provider of providerSpecs) {
     if (provider.provider === "deepgram_asr" && isolatedDevelopmentTest) continue
     if (!provider.flag || isEnabled(env, provider.flag)) {
-      addRequired(issues, env, provider.requirements)
+      addRequired(issues, env, getProviderRequirements(provider, env))
     }
   }
 }

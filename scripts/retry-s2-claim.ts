@@ -9,17 +9,29 @@ async function main(): Promise<void> {
 
   // Find the most recent "Pasted transcript" that failed at S2
   const [analysis] = await db
-    .select({ id: schema.analyses.id, title: schema.analyses.title, status: schema.analyses.status })
+    .select({
+      id: schema.analyses.id,
+      title: schema.analyses.title,
+      status: schema.analyses.status,
+    })
     .from(schema.analyses)
     .where(eq(schema.analyses.title, "Pasted transcript"))
     .orderBy(desc(schema.analyses.createdAt))
     .limit(1)
-  if (!analysis) { console.log("NO_MATCHING_ANALYSIS"); process.exit(1) }
+  if (!analysis) {
+    console.log("NO_MATCHING_ANALYSIS")
+    process.exit(1)
+  }
   console.log(`TARGET: ${analysis.id} | ${analysis.title} | ${analysis.status}`)
 
   // Check current job state
   const [job] = await db
-    .select({ id: schema.analysisJobs.id, stage: schema.analysisJobs.stage, status: schema.analysisJobs.status, attempts: schema.analysisJobs.attempts })
+    .select({
+      id: schema.analysisJobs.id,
+      stage: schema.analysisJobs.stage,
+      status: schema.analysisJobs.status,
+      attempts: schema.analysisJobs.attempts,
+    })
     .from(schema.analysisJobs)
     .where(eq(schema.analysisJobs.analysisId, analysis.id))
     .limit(1)
@@ -57,27 +69,39 @@ async function main(): Promise<void> {
 
   if (!processed) {
     // Try once more in case of timing
-    await new Promise(r => setTimeout(r, 1000))
+    await new Promise((r) => setTimeout(r, 1000))
     const processed2 = await processNextAnalysisJob()
     console.log(`WORKER_PROCESSED_RETRY: ${processed2}`)
   }
 
   // Check result
   const [updatedJob] = await db
-    .select({ stage: schema.analysisJobs.stage, status: schema.analysisJobs.status, lastErrorClass: schema.analysisJobs.lastErrorClass, attempts: schema.analysisJobs.attempts })
+    .select({
+      stage: schema.analysisJobs.stage,
+      status: schema.analysisJobs.status,
+      lastErrorClass: schema.analysisJobs.lastErrorClass,
+      attempts: schema.analysisJobs.attempts,
+    })
     .from(schema.analysisJobs)
     .where(eq(schema.analysisJobs.analysisId, analysis.id))
     .limit(1)
-  console.log(`RESULT_JOB: stage=${updatedJob?.stage} status=${updatedJob?.status} error=${updatedJob?.lastErrorClass ?? "none"} attempts=${updatedJob?.attempts}`)
+  console.log(
+    `RESULT_JOB: stage=${updatedJob?.stage} status=${updatedJob?.status} error=${updatedJob?.lastErrorClass ?? "none"} attempts=${updatedJob?.attempts}`,
+  )
 
   // Check S2 stage run
   const { asc } = await import("drizzle-orm")
   const runs = await db
-    .select({ stage: schema.analysisStageRuns.stage, status: schema.analysisStageRuns.status, attempt: schema.analysisStageRuns.attempt, errorClass: schema.analysisStageRuns.errorClass })
+    .select({
+      stage: schema.analysisStageRuns.stage,
+      status: schema.analysisStageRuns.status,
+      attempt: schema.analysisStageRuns.attempt,
+      errorClass: schema.analysisStageRuns.errorClass,
+    })
     .from(schema.analysisStageRuns)
     .where(eq(schema.analysisStageRuns.analysisId, analysis.id))
     .orderBy(asc(schema.analysisStageRuns.attempt))
-  const s2Runs = runs.filter(r => r.stage === "S2")
+  const s2Runs = runs.filter((r) => r.stage === "S2")
   console.log(`S2_RUNS: ${JSON.stringify(s2Runs)}`)
 
   // Check if claims were persisted
@@ -88,4 +112,7 @@ async function main(): Promise<void> {
   process.exit(0)
 }
 
-void main().catch((e) => { console.error(e instanceof Error ? e.message : "FAILED"); process.exit(1) })
+void main().catch((e) => {
+  console.error(e instanceof Error ? e.message : "FAILED")
+  process.exit(1)
+})

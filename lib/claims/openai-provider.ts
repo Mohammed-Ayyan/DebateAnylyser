@@ -79,7 +79,10 @@ export class OpenAIClaimExtractionProvider implements ClaimExtractionProvider {
     }, this.options.timeoutMs)
     try {
       const _reqStart = pipelineNow()
-      pipelineLog("S2", "PROVIDER", "Sending request", { model: this.options.model, host: new URL(this.options.apiUrl).hostname })
+      pipelineLog("S2", "PROVIDER", "Sending request", {
+        model: this.options.model,
+        host: new URL(this.options.apiUrl).hostname,
+      })
       const response = await (this.options.fetchImpl ?? fetch)(this.options.apiUrl, {
         method: "POST",
         headers: {
@@ -112,7 +115,10 @@ export class OpenAIClaimExtractionProvider implements ClaimExtractionProvider {
         }),
         signal: controller.signal,
       })
-      pipelineLog("S2", "PROVIDER", "Response received", { status: response.status, elapsed: pipelineElapsed(_reqStart) })
+      pipelineLog("S2", "PROVIDER", "Response received", {
+        status: response.status,
+        elapsed: pipelineElapsed(_reqStart),
+      })
       if (!response.ok) {
         if (response.status === 400) {
           try {

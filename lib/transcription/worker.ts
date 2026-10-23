@@ -22,6 +22,7 @@ import type { ObjectStorage } from "@/lib/storage/types"
 import { TranscriptionError, type TranscriptionProvider } from "./contracts"
 import { DeepgramTranscriptionProvider } from "./deepgram-adapter"
 import { DevelopmentTextUrlProvider } from "./development-text-url-provider"
+import { WhisperTranscriptionProvider } from "./whisper-adapter"
 import { resolveTranscriptionInput } from "./source-resolver"
 import { loadAnalysisSource } from "./source-repository"
 import { findTranscriptId, persistTranscript } from "./transcript-repository"
@@ -50,6 +51,14 @@ export type TranscriptionWorkerDependencies = {
 }
 
 function createDefaultProvider(): TranscriptionProvider {
+  if (serverEnv.ASR_PROVIDER === "whisper") {
+    return new WhisperTranscriptionProvider({
+      apiUrl: serverEnv.WHISPER_URL,
+      timeoutMs: serverEnv.WHISPER_TIMEOUT_MS,
+      asrLowConfidenceThreshold: serverEnv.ASR_LOW_CONFIDENCE_THRESHOLD,
+      diarizationLowConfidenceThreshold: serverEnv.DIARIZATION_LOW_CONFIDENCE_THRESHOLD,
+    })
+  }
   if (
     !serverEnv.DEEPGRAM_API_KEY &&
     serverEnv.APP_ENV === "dev" &&

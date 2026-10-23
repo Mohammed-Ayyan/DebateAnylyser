@@ -91,7 +91,9 @@ const serverEnvSchema = z.object({
     .transform((value) => value === "true"),
   OBJECT_DOWNLOAD_URL_TTL_SECONDS: z.coerce.number().int().min(60).max(3_600).default(900),
   TRANSCRIPT_TEXT_MAX_BYTES: z.coerce.number().int().positive().default(26_214_400),
-  ASR_PROVIDER: z.enum(["deepgram"]).default("deepgram"),
+  ASR_PROVIDER: z.enum(["deepgram", "whisper"]).default("deepgram"),
+  WHISPER_URL: z.string().url().default("http://localhost:5001/transcribe"),
+  WHISPER_TIMEOUT_MS: z.coerce.number().int().min(1_000).max(3_600_000).default(600_000),
   DEEPGRAM_API_KEY: z.string().min(1).optional(),
   DEEPGRAM_API_URL: z.string().url().default("https://api.deepgram.com/v1/listen"),
   DEEPGRAM_MODEL: z.string().min(1).default("nova-3"),
@@ -129,7 +131,7 @@ const serverEnvSchema = z.object({
     .enum(["true", "false"])
     .default("false")
     .transform((value) => value === "true"),
-  SUPPORT_PROVIDER: z.enum(["openai"]).default("openai"),
+  SUPPORT_PROVIDER: z.enum(["openai", "ollama"]).default("openai"),
   SUPPORT_MODEL: z.string().min(1).default("openai/gpt-oss-120b"),
   SUPPORT_PROMPT_VERSION: z.string().min(1).max(100).default("s3-support-assessment-v1"),
   SUPPORT_SCHEMA_VERSION: z.string().min(1).max(100).default("s3-support-schema-v1"),
@@ -142,7 +144,7 @@ const serverEnvSchema = z.object({
     .enum(["true", "false"])
     .default("false")
     .transform((value) => value === "true"),
-  STRUCTURE_PROVIDER: z.enum(["openai"]).default("openai"),
+  STRUCTURE_PROVIDER: z.enum(["openai", "ollama"]).default("openai"),
   STRUCTURE_MODEL: z.string().min(1).default("openai/gpt-oss-120b"),
   STRUCTURE_PROMPT_VERSION: z.string().min(1).max(100).default("s4-toulmin-structure-v1"),
   STRUCTURE_SCHEMA_VERSION: z.string().min(1).max(100).default("s4-toulmin-schema-v1"),
@@ -157,11 +159,18 @@ const serverEnvSchema = z.object({
     .enum(["true", "false"])
     .default("false")
     .transform((value) => value === "true"),
+  EVIDENCE_RETRIEVER_PROVIDER: z.enum(["http", "wikipedia"]).default("wikipedia"),
+  WIKIPEDIA_API_URL: z.string().url().default("https://en.wikipedia.org/w/api.php"),
+  WIKIPEDIA_USER_AGENT: z
+    .string()
+    .default(
+      "DebateAnalyser-EvidenceVerifier/1.0 (https://github.com/Mohammed-Ayyan/DebateAnylyser; contact: local-analyser@debate.local)",
+    ),
   EVIDENCE_RETRIEVER_URL: z.string().url().optional(),
   EVIDENCE_RETRIEVER_API_KEY: z.string().min(1).optional(),
   EVIDENCE_RETRIEVER_TIMEOUT_MS: z.coerce.number().int().min(1_000).max(120_000).default(20_000),
   EVIDENCE_MAX_CANDIDATES_PER_CLAIM: z.coerce.number().int().min(1).max(20).default(5),
-  EVIDENCE_VERIFIER_PROVIDER: z.enum(["openai"]).default("openai"),
+  EVIDENCE_VERIFIER_PROVIDER: z.enum(["openai", "ollama"]).default("ollama"),
   EVIDENCE_VERIFIER_MODEL: z.string().min(1).default("gpt-5.6"),
   EVIDENCE_PROMPT_VERSION: z.string().min(1).max(100).default("s6-evidence-verification-v1"),
   EVIDENCE_SCHEMA_VERSION: z.string().min(1).max(100).default("s6-evidence-schema-v1"),
@@ -175,7 +184,7 @@ const serverEnvSchema = z.object({
     .enum(["true", "false"])
     .default("false")
     .transform((value) => value === "true"),
-  FALLACY_PROVIDER: z.enum(["openai"]).default("openai"),
+  FALLACY_PROVIDER: z.enum(["openai", "ollama"]).default("openai"),
   FALLACY_MODEL: z.string().min(1).default("openai/gpt-oss-120b"),
   FALLACY_PROMPT_VERSION: z.string().min(1).max(100).default("s5-fallacy-detection-v1"),
   FALLACY_SCHEMA_VERSION: z.string().min(1).max(100).default("s5-fallacy-schema-v1"),
@@ -188,6 +197,7 @@ const serverEnvSchema = z.object({
     .enum(["true", "false"])
     .default("false")
     .transform((value) => value === "true"),
+  SOURCE_CREDIBILITY_PROVIDER: z.enum(["http", "dataset"]).default("dataset"),
   CREDIBILITY_PROVIDER_URL: z.string().url().optional(),
   CREDIBILITY_PROVIDER_API_KEY: z.string().min(1).optional(),
   CREDIBILITY_PROVIDER_TIMEOUT_MS: z.coerce.number().int().min(1_000).max(120_000).default(20_000),

@@ -1,6 +1,6 @@
 import "server-only"
 
-import { asc, desc, eq, sql } from "drizzle-orm"
+import { and, asc, desc, eq, gt, sql } from "drizzle-orm"
 
 import { getRedis } from "@/lib/cache/redis"
 import { analysisEventSchema, type AnalysisEvent } from "@/lib/contracts/events"
@@ -80,9 +80,11 @@ export async function replayAnalysisEvents(
     .select({ sequence: analysisEvents.sequence, payload: analysisEvents.payload })
     .from(analysisEvents)
     .where(
-      sql`${analysisEvents.analysisId} = ${analysisId}
-        and ${analysisEvents.sequence} > ${cursor}
-        and ${analysisEvents.expiresAt} > ${now}`,
+      and(
+        eq(analysisEvents.analysisId, analysisId),
+        gt(analysisEvents.sequence, cursor),
+        gt(analysisEvents.expiresAt, now),
+      ),
     )
     .orderBy(asc(analysisEvents.sequence))
     .limit(serverEnv.EVENT_REPLAY_LIMIT + 1)

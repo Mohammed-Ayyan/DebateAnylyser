@@ -24,7 +24,8 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
-
+*.md
+!README.md
 # v0 runtime files (preview-only)
 __v0_runtime_loader.js
 __v0_devtools.tsx

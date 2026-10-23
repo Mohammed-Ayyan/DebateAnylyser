@@ -198,7 +198,10 @@ export async function processClaimedClaimJob(
   let stageRun: Awaited<ReturnType<typeof createStageAttempt>> | undefined
   try {
     const transcript = await dependencies.loadTranscript(job.analysisId)
-    pipelineLog("S2", "INPUT", "", { segments: transcript.segments.length, transcriptChars: transcript.segments.reduce((sum, s) => sum + s.text.length, 0) })
+    pipelineLog("S2", "INPUT", "", {
+      segments: transcript.segments.length,
+      transcriptChars: transcript.segments.reduce((sum, s) => sum + s.text.length, 0),
+    })
     const validSegmentIds = new Set(transcript.segments.map((segment) => segment.id))
     const snapshot = await dependencies.getSnapshot(job.analysisId, true)
     if (snapshot?.status === "complete") {
@@ -254,7 +257,9 @@ export async function processClaimedClaimJob(
             validateWindowClaims(candidate, window, serverEnv.CLAIM_MAX_CLAIMS_PER_WINDOW),
         })
         extracted.push(...result.output)
-        pipelineLog("S2", "PROVIDER", "Response received", { elapsed: pipelineElapsed(_windowStart) })
+        pipelineLog("S2", "PROVIDER", "Response received", {
+          elapsed: pipelineElapsed(_windowStart),
+        })
         if (leaseLost) {
           throw new ClaimExtractionError("WORKER_LEASE_LOST", "The worker lease was lost.", true)
         }
